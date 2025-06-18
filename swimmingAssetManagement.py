@@ -94,7 +94,7 @@ class CreateNewClassWindow:
         self.levelGroupComboBox.pack(pady=defaultWidgeToWidgettPadding)
 
         # # Buttons for saving and exiting
-        # self.saveAndExitButton = tk.Button(self.frame, text="Save And Exit Class Plan", font=("Roboto", 16, "bold"), command=self.save_and_exit_class)
+        # self.saveAndExitButton = tk.Button(self.frame, text="Save And Exit Class Plan", font=("Roboto", 16, "bold"), command=self.save_class_and_exit)
         # self.saveAndExitButton.pack(side="left",pady=defaultWidgeToWidgettPadding)
         # self.saveButton = tk.Button(self.frame, text="Save Class Plan", font=("Roboto", 16, "bold"), command=self.save_class)
         # self.saveButton.pack(side="right",pady=defaultWidgeToWidgettPadding, padx=15)
@@ -103,16 +103,29 @@ class CreateNewClassWindow:
         self.buttonFrame.pack(pady=defaultWidgeToWidgettPadding)
 
         # Add Save and Save+Exit buttons to this sub-frame
-        self.saveAndExitButton = tk.Button(self.buttonFrame, text="Save And Exit Class Plan", font=("Roboto", 16, "bold"), command=self.save_and_exit_class)
+        self.saveAndExitButton = tk.Button(self.buttonFrame, text="Save Class And Exit", font=("Roboto", 16, "bold"), command=self.save_class_and_exit)
         self.saveAndExitButton.pack(side="left", padx=10)
 
-        self.saveButton = tk.Button(self.buttonFrame, text="Save Class Plan", font=("Roboto", 16, "bold"), command=self.save_class)
+        self.saveButton = tk.Button(self.buttonFrame, text="Save Class", font=("Roboto", 16, "bold"), command=self.save_class)
         self.saveButton.pack(side="right", padx=10)
+
+        self.discardButton = tk.Button(self.buttonFrame, text="Discard Class", font=("Roboto", 16, "bold"), command=self.discard_class)
+        self.discardButton.pack(side="right", padx=10)
+
         
         # Create a label for error messages
         self.errorLabel = None
         self.subLevelDropDown = None
 
+
+    def discard_class(self):
+        reset_to_main_menu()
+        self.master.focus_set()
+
+    def save_class_and_exit(self):
+        if(self.save_class()):
+            reset_to_main_menu()
+            self.master.focus_set()
 
     def save_class(self):
         try:
@@ -129,7 +142,7 @@ class CreateNewClassWindow:
             if data.strip() == "" or data == self.classNamePlaceholderText or data == self.amountOfSetsPlaceholderText:
                 self.display_error("Please fill in all fields")
                 print("Please fill in all fields")
-                return
+                return False
         # if (className.strip() == "" or className == self.classNamePlaceholderText) or startDate.strip() == "" or amountOfSets.strip() == "" or selectedLevel == lifesavingSocietyLevelTitle:
         #     self.display_error("Lesson name is required")
         #     print("Please enter a valid lesson name")
@@ -148,11 +161,7 @@ class CreateNewClassWindow:
             file.write(json.dumps(jsonExportData) + "\n")
             # json.dumps(jsonExportData)
         print(f"Saved: {className}, {startDate}, {amountOfSets}, {selectedLevel}")
-
-    def save_and_exit_class(self):
-        self.save_class()
-        reset_to_main_menu()
-        self.master.focus_set()
+        return True
 
     def _clear_placeholder(self, event):
         widget = event.widget
@@ -279,8 +288,18 @@ def reset_to_main_menu():
     # oldPlanButton.pack(pady=defaultWidgeToWidgettPadding)
     # exitButton.pack(pady=defaultWidgeToWidgettPadding)
 
+def reset_json_file():
+    jsonExportData = {
+        "ClassName": "",
+        "startDate": "",
+        "amountOfSets": "",
+        "selectedLevel": ""
+    }
+    with open("jsonClassData.json", "w") as file:
+        file.write(json.dumps(jsonExportData) + "\n")
 
 
+# reset_json_file()
 tkinterMainAssetRoot.bind("<Escape>", lambda e: tkinterMainAssetRoot.destroy())
 reset_to_main_menu()
 
