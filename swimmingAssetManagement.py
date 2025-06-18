@@ -7,6 +7,7 @@ import tkinter.font as tkFont
 from datetime import date
 import time
 import json
+import pytest
 
 # Create main window
 tkinterMainAssetRoot = tk.Tk()
@@ -143,23 +144,33 @@ class CreateNewClassWindow:
                 self.display_error("Please fill in all fields")
                 print("Please fill in all fields")
                 return False
-        # if (className.strip() == "" or className == self.classNamePlaceholderText) or startDate.strip() == "" or amountOfSets.strip() == "" or selectedLevel == lifesavingSocietyLevelTitle:
-        #     self.display_error("Lesson name is required")
-        #     print("Please enter a valid lesson name")
-        #     return
-        # import os
-        #     if not os.path.exists("lesson_plans.json"):
-        #         with open("lesson_plans.json", "w") as file:
-        #             file.write("[]\n")
+            
+        # json things
         jsonExportData = {
             "ClassName": className,
             "startDate": startDate,
             "amountOfSets": amountOfSets,
             "selectedLevel": selectedLevel
         }
+        
+        try:
+            with open("jsonClassData.json", "r") as file:
+                importedData = json.load(file)  # This will be a list
+        except (FileNotFoundError, json.JSONDecodeError):
+            importedData = []
+
+        if isinstance(importedData, dict):
+            importedData = [importedData]
+        importedData.append({
+            "ClassName": className,
+            "startDate": startDate,
+            "amountOfSets": amountOfSets,
+            "selectedLevel": selectedLevel
+        })
+
         with open("jsonClassData.json", "w") as file:
-            file.write(json.dumps(jsonExportData) + "\n")
-            # json.dumps(jsonExportData)
+            # file.write(json.dumps(importedData) + "\n")
+            json.dump(importedData, file, indent=4)
         print(f"Saved: {className}, {startDate}, {amountOfSets}, {selectedLevel}")
         return True
 
