@@ -8,6 +8,7 @@ from datetime import date
 import time
 import json
 import pytest
+from jsonFileManagment import jsonFileManagement
 
 # Create main window
 tkinterMainAssetRoot = tk.Tk()
@@ -280,6 +281,8 @@ def newClassButton_action():
 
 def oldClassButton_action():
     print("oldPlanButton pressed!")
+    findJsonClasse = jsonFileManagement("jsonClassData.json")
+    # findJsonClasse.searchClasses(0,0)
     viewOldPlan = ViewOldClassWindow(tkinterMainAssetRoot, tkinterMainAsseFrame)
 
 def exitButton_action():
@@ -299,13 +302,17 @@ def reset_to_main_menu():
     # oldPlanButton.pack(pady=defaultWidgeToWidgettPadding)
     # exitButton.pack(pady=defaultWidgeToWidgettPadding)
 
-def reset_json_file():
-    jsonExportData = {
-        "ClassName": "",
-        "startDate": "",
-        "amountOfSets": "",
-        "selectedLevel": ""
-    }
+def reset_json_file(self, jsonData, jsonFilePath):
+    if not jsonFilePath.endswith('.json') and jsonFilePath != "":
+        raise ValueError("File path must end with .json")
+    for index, data in enumerate(jsonData):
+        jsonExportData = [index] = data
+    # jsonExportData = {
+    #     "ClassName": "",
+    #     "startDate": "",
+    #     "amountOfSets": "",
+    #     "selectedLevel": ""
+    # }
     with open("jsonClassData.json", "w") as file:
         file.write(json.dumps(jsonExportData) + "\n")
 
@@ -313,6 +320,7 @@ def reset_json_file():
 # reset_json_file()
 tkinterMainAssetRoot.bind("<Escape>", lambda e: tkinterMainAssetRoot.destroy())
 reset_to_main_menu()
+reset_json_file(["ClassName", "startDate", "amountOfSets", "selectedLevel"], "jsonClassData.json", "jsonClassData.json")
 
 
 # newPlanButton.pack(pady=defaultWidgeToWidgettPadding)
