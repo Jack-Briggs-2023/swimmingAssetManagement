@@ -35,7 +35,12 @@ lifesavingSocietyLevels = {
     "Bronze Medals": ["Bronze Star", "Bronze Medallion", "Bronze Cross"]
 }
 lifesavingSocietyLevelTitle = "Lifesaving Society Swim Program Level"
-
+defaultClass = {
+    "ClassName": "",
+    "startDate": "",
+    "amountOfSets": "",
+    "selectedLevel": ""
+}
 
 
 class CreateNewClassWindow:
@@ -46,6 +51,7 @@ class CreateNewClassWindow:
         self.master.attributes('-fullscreen', True)
         self.placeholderWidgetList = []
         self.placeholderList = []
+        self.jsonClass = jsonFileManagement("jsonClassData.json")
 
         for widget in self.frame.winfo_children():
             widget.destroy()
@@ -138,7 +144,7 @@ class CreateNewClassWindow:
         except AttributeError:
             self.display_error("Please fill in all fields")
             print("Please fill in all fields")
-            return
+            return False
         saveData = {className, startDate, amountOfSets, selectedLevel}
         for data in saveData:
             if data.strip() == "" or data == self.classNamePlaceholderText or data == self.amountOfSetsPlaceholderText:
@@ -154,24 +160,26 @@ class CreateNewClassWindow:
             "selectedLevel": selectedLevel
         }
         
-        try:
-            with open("jsonClassData.json", "r") as file:
-                importedData = json.load(file)  # This will be a list
-        except (FileNotFoundError, json.JSONDecodeError):
-            importedData = []
+        # try:
+        #     with open("jsonClassData.json", "r") as file:
+        #         importedData = json.load(file)  # This will be a list
+        # except (FileNotFoundError, json.JSONDecodeError):
+        #     importedData = []
 
-        if isinstance(importedData, dict):
-            importedData = [importedData]
-        importedData.append({
-            "ClassName": className,
-            "startDate": startDate,
-            "amountOfSets": amountOfSets,
-            "selectedLevel": selectedLevel
-        })
+        # if isinstance(importedData, dict):
+        #     importedData = [importedData]
+        # importedData.append({
+        #     "ClassName": className,
+        #     "startDate": startDate,
+        #     "amountOfSets": amountOfSets,
+        #     "selectedLevel": selectedLevel
+        # })
 
-        with open("jsonClassData.json", "w") as file:
-            # file.write(json.dumps(importedData) + "\n")
-            json.dump(importedData, file, indent=4)
+        # with open("jsonClassData.json", "w") as file:
+        #     # file.write(json.dumps(importedData) + "\n")
+        #     json.dump(importedData, file, indent=4)
+        self.jsonClass.writeJson(jsonExportData)
+        # print(printThis)
         print(f"Saved: {className}, {startDate}, {amountOfSets}, {selectedLevel}")
         return True
 
@@ -302,11 +310,11 @@ def reset_to_main_menu():
     # oldPlanButton.pack(pady=defaultWidgeToWidgettPadding)
     # exitButton.pack(pady=defaultWidgeToWidgettPadding)
 
-def reset_json_file(self, jsonData, jsonFilePath):
+def reset_json_file(jsonFilePath):
     if not jsonFilePath.endswith('.json') and jsonFilePath != "":
         raise ValueError("File path must end with .json")
-    for index, data in enumerate(jsonData):
-        jsonExportData = [index] = data
+    # for index, data in enumerate(jsonData):
+    #     jsonExportData = [index] = data
     # jsonExportData = {
     #     "ClassName": "",
     #     "startDate": "",
@@ -314,13 +322,13 @@ def reset_json_file(self, jsonData, jsonFilePath):
     #     "selectedLevel": ""
     # }
     with open("jsonClassData.json", "w") as file:
-        file.write(json.dumps(jsonExportData) + "\n")
+        file.write(json.dumps(defaultClass) + "\n")
 
 
 # reset_json_file()
 tkinterMainAssetRoot.bind("<Escape>", lambda e: tkinterMainAssetRoot.destroy())
 reset_to_main_menu()
-reset_json_file(["ClassName", "startDate", "amountOfSets", "selectedLevel"], "jsonClassData.json", "jsonClassData.json")
+# reset_json_file("jsonClassData.json")
 
 
 # newPlanButton.pack(pady=defaultWidgeToWidgettPadding)

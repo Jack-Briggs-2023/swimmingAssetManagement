@@ -1,1 +1,38 @@
-"n"
+[
+    {
+        "ClassName": "",
+        "startDate": "",
+        "amountOfSets": "",
+        "selectedLevel": ""
+    },
+    {
+        "ClassName": "class 1",
+        "startDate": "2025-06-21",
+        "amountOfSets": "6",
+        "selectedLevel": "Swimmer 2"
+    },
+    {
+        "ClassName": "class 2",
+        "startDate": "2025-05-27",
+        "amountOfSets": "34",
+        "selectedLevel": "Swimmer 2"
+    },
+    {
+        "ClassName": "class 3",
+        "startDate": "2025-05-27",
+        "amountOfSets": "23",
+        "selectedLevel": "Swimmer 1"
+    },
+    {
+        "ClassName": "class 4",
+        "startDate": "2025-05-27",
+        "amountOfSets": "2",
+        "selectedLevel": "Bronze Medallion"
+    },
+    {
+        "ClassName": "class 5",
+        "startDate": "2025-06-10",
+        "amountOfSets": "2",
+        "selectedLevel": "Preschool 2"
+    }
+]
