@@ -34,12 +34,45 @@ lifesavingSocietyLevels = {
     "Swim Patrol": ["Rookie Patrol", "Ranger Patrol", "Star Patrol"],
     "Bronze Medals": ["Bronze Star", "Bronze Medallion", "Bronze Cross"]
 }
+lifesavingSocietyLevels = { # these level needed to be changed to the offical times for each level!!!
+    "Parent & Tot": {
+        "Parent & Tot 1": 30,
+        "Parent & Tot 2": 30,
+        "Parent & Tot 3": 30
+    },
+    "Preschool": {
+        "Preschool 1": 35,
+        "Preschool 2": 35,
+        "Preschool 3": 35,
+        "Preschool 4": 35,
+        "Preschool 5": 35
+    },
+    "Swimmer": {
+        "Swimmer 1": 45,
+        "Swimmer 2": 45,
+        "Swimmer 3": 45,
+        "Swimmer 4": 45,
+        "Swimmer 5": 45,
+        "Swimmer 6": 45
+    },
+    "Swim Patrol": {
+        "Rookie Patrol": 50,
+        "Ranger Patrol": 50,
+        "Star Patrol": 50
+    },
+    "Bronze Medals": {
+        "Bronze Star": 60,
+        "Bronze Medallion": 90,
+        "Bronze Cross": 90
+    }
+}
+
 lifesavingSocietyLevelTitle = "Lifesaving Society Swim Program Level"
 defaultClass = {
     "ClassName": "",
     "startDate": "",
     "amountOfSets": "",
-    "selectedLevel": ""
+    "level": "",
 }
 
 
@@ -101,6 +134,7 @@ class CreateNewClassWindow:
         self.levelGroupComboBox.bind("<<ComboboxSelected>>", self.on_combobox_selected)
         self.levelGroupComboBox.pack(pady=defaultWidgeToWidgettPadding)
 
+        # self.levelTimeLabel = tk.Label(self.frame, text="Select Level:", font=("Roboto", 16))
         # # Buttons for saving and exiting
         # self.saveAndExitButton = tk.Button(self.frame, text="Save And Exit Class Plan", font=("Roboto", 16, "bold"), command=self.save_class_and_exit)
         # self.saveAndExitButton.pack(side="left",pady=defaultWidgeToWidgettPadding)
@@ -132,7 +166,7 @@ class CreateNewClassWindow:
 
     def save_class_and_exit(self):
         if(self.save_class()):
-            reset_to_main_menu()
+            reset_to_main_menu(self.master)
             self.master.focus_set()
 
     def save_class(self):
@@ -210,17 +244,43 @@ class CreateNewClassWindow:
             count += 1
 
     def on_combobox_selected(self, event):
+    #     for widget in self.frame.winfo_children():
+    #         if isinstance(widget, ttk.Combobox) and widget != self.levelGroupComboBox:
+    #             widget.destroy()
+    #     for level in lifesavingSocietyLevels:
+    #         if level in self.selectedGroupLevel.get():
+    #             self.selectedSubLevel = tk.StringVar()
+    #             self.selectedSubLevel.set(lifesavingSocietyLevelTitle)
+    #             self.sublevelGroupComboBox = ttk.Combobox(self.frame, textvariable=self.selectedSubLevel, values=lifesavingSocietyLevels.get(level), state="readonly")
+    #             break
+    #     self.sublevelGroupComboBox.pack(after=self.levelGroupComboBox)
+    #     self.levelTimeLabel = tk.Label(self.frame, text=lifesavingSocietyLevels[self.selectedGroupLevel][self.selectedSubLevel], font=("Roboto", 16))
+    # Destroy old sublevel combobox if one exists
         for widget in self.frame.winfo_children():
             if isinstance(widget, ttk.Combobox) and widget != self.levelGroupComboBox:
                 widget.destroy()
-        for level in lifesavingSocietyLevels:
-            if level in self.selectedGroupLevel.get():
-                self.selectedSubLevel = tk.StringVar()
-                self.selectedSubLevel.set(lifesavingSocietyLevelTitle)
-                self.sublevelGroupComboBox = ttk.Combobox(self.frame, textvariable=self.selectedSubLevel, values=lifesavingSocietyLevels.get(level), state="readonly")
-                break
-        self.sublevelGroupComboBox.pack(after=self.levelGroupComboBox)
+        
+        selected_group = self.selectedGroupLevel.get()
 
+        if selected_group in lifesavingSocietyLevels:
+            # Get sublevels (keys of the nested dictionary)
+            sublevels = list(lifesavingSocietyLevels[selected_group].keys())
+
+            self.selectedSubLevel = tk.StringVar()
+            self.selectedSubLevel.set("Select Specific Level")  # default prompt
+
+            self.sublevelGroupComboBox = ttk.Combobox(
+                self.frame,
+                textvariable=self.selectedSubLevel,
+                values=sublevels,
+                state="readonly"
+            )
+            self.sublevelGroupComboBox.pack(after=self.levelGroupComboBox)
+
+            # Optional: bind to sublevel selection to show time
+            self.sublevelGroupComboBox.bind("<<ComboboxSelected>>", self.show_level_time)
+
+        
     def display_error(self, message):
         if self.errorLabel:
             self.errorLabel.destroy()
@@ -251,6 +311,22 @@ class CreateNewClassWindow:
         except ValueError:
             widget.delete(0, "end")
 
+    def show_level_time(self, event):
+        selectedGroup = self.selectedGroupLevel.get()
+        selected_level = self.selectedSubLevel.get()
+
+        if selectedGroup and selected_level:
+            minutes = lifesavingSocietyLevels[selectedGroup].get(selected_level, "N/A")
+            
+            if hasattr(self, "levelTimeLabel") and self.levelTimeLabel:
+                self.levelTimeLabel.destroy()
+            
+            self.levelTimeLabel = tk.Label(
+                self.frame,
+                text=f"Class Time: {minutes} minutes",
+                font=("Roboto", 16)
+            )
+            self.levelTimeLabel.pack(after=self.sublevelGroupComboBox, pady=defaultWidgeToWidgettPadding)
 
 
 class ViewOldClassWindow:
@@ -261,6 +337,8 @@ class ViewOldClassWindow:
         self.master.attributes('-fullscreen', True)
         self.placeholderWidgetList = []
         self.placeholderList = []
+        self.jsonClass = jsonFileManagement("jsonClassData.json")
+        self.foundClasses = self.jsonClass.readJson()
 
         for widget in self.frame.winfo_children():
             widget.destroy()
@@ -271,15 +349,30 @@ class ViewOldClassWindow:
         # Placeholder for old class data
         self.oldClassDataLabel = tk.Label(self.frame, text="Old Class Data Will Be Displayed Here", font=("Roboto", 16), fg='grey')
         self.oldClassDataLabel.pack(pady=defaultWidgeToWidgettPadding)
-        with open("jsonClassData.json", "r") as file:
-            data = json.load(file)
-        if isinstance(data, list):
-            for classData in data:
-                print(classData)
-        elif isinstance(data, dict):
-            print(data)
-        else:
-            print("Unexpected JSON format")
+
+        # for classData in self.foundClasses:
+        #     text_button = tk.Label(self.frame, text=classData, fg="blue", cursor="hand2", font=("Roboto", 16, "underline"))
+        #     text_button.bind("<Double-Button-1>", lambda event, data=classData: self.on_click(data, event))
+        #     text_button.pack(pady=defaultWidgeToWidgettPadding)
+
+        gridFrame = tk.Frame(self.frame)
+        gridFrame.pack(pady=10)
+        tk.Label(gridFrame, text="Class Level", font=("Roboto", 14, "bold")).grid(row=0, column=0, padx=10, pady=5)
+        tk.Label(gridFrame, text="Start Date", font=("Roboto", 14, "bold")).grid(row=0, column=1, padx=10, pady=5)
+        # tk.Label(self.frame, text="Class Level", font=("Roboto", 14, "bold")).pack(pady=5)
+        # tk.Label(self.frame, text="Start Date", font=("Roboto", 14, "bold")).pack(pady=5)
+
+        # Add rows of class data
+        for index, classData in enumerate(self.foundClasses):
+            levelLabel = tk.Label(gridFrame, text=classData["selectedLevel"], font=("Roboto", 12, "underline"), cursor="hand2")
+            levelLabel.grid(row=index+1, column=0, padx=10, pady=5)
+            levelLabel.bind("<Double-Button-1>", lambda event, data=classData: self.on_click(data, event))
+            tk.Label(gridFrame, text=classData["startDate"], font=("Roboto", 12)).grid(row=index+1, column=1, padx=10, pady=5)
+    def on_click(self, classData, event):
+        print("Clicked on class data: ", classData)
+    # def clicked(row, col):
+    #     print(f"Button at ({row}, {col}) clicked")
+
 # Fullscreen
 tkinterMainAssetRoot.attributes('-fullscreen', True)
 
@@ -289,8 +382,9 @@ def newClassButton_action():
 
 def oldClassButton_action():
     print("oldPlanButton pressed!")
-    findJsonClasse = jsonFileManagement("jsonClassData.json")
-    # findJsonClasse.searchClasses(0,0)
+    # findJsonClasse = jsonFileManagement("jsonClassData.json")
+    # foundClasses = findJsonClasse.readJson()
+    # print(f"Found Classes: {foundClasses}")
     viewOldPlan = ViewOldClassWindow(tkinterMainAssetRoot, tkinterMainAsseFrame)
 
 def exitButton_action():
@@ -305,7 +399,8 @@ def reset_to_main_menu():
     exitButton = tk.Button(tkinterMainAsseFrame, text="Exit", font=("Roboto", 16, "bold"), command=exitButton_action)
     newClassButton.pack(pady=defaultWidgeToWidgettPadding)
     oldClassButton.pack(pady=defaultWidgeToWidgettPadding)
-    exitButton.pack(pady=defaultWidgeToWidgettPadding)  
+    exitButton.pack(pady=defaultWidgeToWidgettPadding)
+    # tkinterMainAsseFrame.set_focus()
     # newPlanButton.pack(pady=defaultWidgeToWidgettPadding)
     # oldPlanButton.pack(pady=defaultWidgeToWidgettPadding)
     # exitButton.pack(pady=defaultWidgeToWidgettPadding)
