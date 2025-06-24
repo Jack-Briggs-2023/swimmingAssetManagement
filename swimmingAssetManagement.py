@@ -66,15 +66,28 @@ lifesavingSocietyLevels = { # these level needed to be changed to the offical ti
         "Bronze Cross": 90
     }
 }
-
 lifesavingSocietyLevelTitle = "Lifesaving Society Swim Program Level"
 defaultClass = {
     "ClassName": "",
     "startDate": "",
     "amountOfSets": "",
     "level": "",
+    "classDuration": "",
 }
-
+defaultClassWidgets = {
+    "ClassName": tk.Entry,
+    "startDate": DateEntry,
+    "amountOfSets": tk.Entry,
+    "level": ttk.Combobox,
+    "classDuration": tk.Entry,
+}
+defaultClassWidgetSources = {
+    "ClassName": False,
+    "startDate": False,
+    "amountOfSets": False,
+    "level": lifesavingSocietyLevels,
+    "classDuration": False,
+}
 
 class CreateNewClassWindow:
     def __init__(self, master, frame):
@@ -90,27 +103,71 @@ class CreateNewClassWindow:
             widget.destroy()
 
         self.master.focus_set()
-
-
-        # Create a label for the window
+        
         label = tk.Label(self.frame, text="Create A New Class", font=("Roboto", 24))
         label.pack(pady=defaultWidgeToWidgettPadding)
-        self.classNameEntry = tk.Entry(self.frame, font=("Roboto", 16), fg='grey')
-        # self.classNameEntry.pack(fill='x', padx=10)
-        self.classNameEntry.pack(fill='x', padx=10, pady=defaultLabelToWidgetPadding)
-        self.classNamePlaceholderText  = "Enter Class Name (for display only) "
-        self.classNameEntry.insert(0, self.classNamePlaceholderText )
-        # Bindings for placeholder text to clear and restore
-        self.classNameEntry.bind("<FocusIn>", self._clear_placeholder)
-        self.classNameEntry.bind("<FocusOut>", self._restore_placeholder)
-        self.placeholderWidgetList.append(self.classNameEntry)
-        self.placeholderList.append(self.classNamePlaceholderText)
+        
+        for index, widget in enumerate(defaultClassWidgets):
+            tk.Label(self.frame, font=("Roboto", 16)).pack(pady=defaultWidgeToWidgettPadding)
+            if (defaultClassWidgets[widget] == tk.Entry):
+                placedWidget = tk.Entry(self.frame, text=widget, font=("Roboto", 16))
+                # placedWidget.pack(pady=defaultWidgeToWidgettPadding)
+                placedWidget.pack(fill='x', padx=10, pady=defaultLabelToWidgetPadding)
+                placeholderText = widget
+                placedWidget.insert(0, placeholderText)
+                placedWidget.bind("<FocusIn>", self._clear_placeholder)
+                placedWidget.bind("<FocusOut>", self._restore_placeholder)
+                self.placeholderWidgetList.append(placedWidget)
+                self.placeholderList.append(widget)
+            elif (defaultClassWidgets[widget] == DateEntry):
+                placedWidget = DateEntry(self.frame, width=12, background='grey', foreground='lightgrey', borderwidth=2, date_pattern='yyyy-mm-dd')
+                placedWidget.pack(pady=defaultWidgeToWidgettPadding)
+                # placedWidget.pack(fill='x', padx=10, pady=defaultLabelToWidgetPadding)
+                # placeholderText = "Select Start Date"
+                placedWidget.set_date(date.today())
+                # self.placeholderWidgetList.append(placedWidget)
+                # self.placeholderList.append(placeholderText)
+            elif (defaultClassWidgets[widget] == ttk.Combobox):
+                # self.selectedGroupLevel = tk.StringVar()
+                # levelOptions = list(lifesavingSocietyLevels.keys())
+                # self.levelGroupComboBox = ttk.Combobox(self.frame, textvariable=self.selectedGroupLevel, values=levelOptions, state="readonly")
+                # self.levelGroupComboBox.set(lifesavingSocietyLevelTitle)
+                # self.levelGroupComboBox.bind("<<ComboboxSelected>>", self.on_combobox_selected)
+                # self.levelGroupComboBox.pack(pady=defaultWidgeToWidgettPadding)
+                
+                # for subIndex in defaultClassWidgetSources:
+                #     if defaultClassWidgetSources[subIndex] == defaultClassWidgets[subIndex]:
+                #         placeholderText = tk.StringVar()
+                #         levelOptions = list(defaultClassWidgetSources[subIndex].keys())
+                #         placedWidget = ttk.Combobox(self.frame, textvariable=self.selectedGroupLevel, values=levelOptions, state="readonly")
+                #         placedWidget.bind("<<ComboboxSelected>>", self.on_combobox_selected)
+                #         placedWidget.pack(pady=defaultWidgeToWidgettPadding)
+
+                source = defaultClassWidgetSources.get(widget)
+                if isinstance(source, dict):
+                    self.selectedGroupLevel = tk.StringVar()
+                    options = list(source.keys())
+                    placedWidget = ttk.Combobox(self.frame, textvariable=self.selectedGroupLevel, values=options, state="readonly")
+                    placedWidget.set(lifesavingSocietyLevelTitle)
+                    placedWidget.bind("<<ComboboxSelected>>", self.on_combobox_selected)
+                    placedWidget.pack(pady=defaultWidgeToWidgettPadding)
+        # Create a label for the window
+        # self.classNameEntry = tk.Entry(self.frame, font=("Roboto", 16), fg='grey')
+        # # self.classNameEntry.pack(fill='x', padx=10)
+        # self.classNameEntry.pack(fill='x', padx=10, pady=defaultLabelToWidgetPadding)
+        # self.classNamePlaceholderText  = "Enter Class Name (for display only) "
+        # self.classNameEntry.insert(0, self.classNamePlaceholderText)
+        # # Bindings for placeholder text to clear and restore
+        # self.classNameEntry.bind("<FocusIn>", self._clear_placeholder)
+        # self.classNameEntry.bind("<FocusOut>", self._restore_placeholder)
+        # self.placeholderWidgetList.append(self.classNameEntry)
+        # self.placeholderList.append(self.classNamePlaceholderText)
 
         # Start date entry
-        self.dateLabel = tk.Label(self.frame, text="Select Start Date:", font=("Roboto", 16))
-        self.dateLabel.pack(pady=defaultWidgeToWidgettPadding)
-        self.startDateEntry = DateEntry(self.frame, width=12, background='grey', foreground='lightgrey', borderwidth=2, date_pattern='yyyy-mm-dd')
-        self.startDateEntry.pack(pady=defaultLabelToWidgetPadding)
+        # self.dateLabel = tk.Label(self.frame, text="Select Start Date:", font=("Roboto", 16))
+        # self.dateLabel.pack(pady=defaultWidgeToWidgettPadding)
+        # self.startDateEntry = DateEntry(self.frame, width=12, background='grey', foreground='lightgrey', borderwidth=2, date_pattern='yyyy-mm-dd')
+        # self.startDateEntry.pack(pady=defaultLabelToWidgetPadding)
 
         # Amount of sets entry
         self.amountOfSetsLabel = tk.Label(self.frame, text="Amount Of Sets: ", font=("Roboto", 16))
@@ -217,7 +274,7 @@ class CreateNewClassWindow:
         print(f"Saved: {className}, {startDate}, {amountOfSets}, {selectedLevel}")
         return True
 
-    def _clear_placeholder(self, event):
+    def _clear_placeholder(self, event, placeholderText=None):
         widget = event.widget
         count = 0
         for placeholderWidget in self.placeholderWidgetList:
@@ -259,13 +316,10 @@ class CreateNewClassWindow:
         for widget in self.frame.winfo_children():
             if isinstance(widget, ttk.Combobox) and widget != self.levelGroupComboBox:
                 widget.destroy()
-        
         selected_group = self.selectedGroupLevel.get()
-
         if selected_group in lifesavingSocietyLevels:
             # Get sublevels (keys of the nested dictionary)
             sublevels = list(lifesavingSocietyLevels[selected_group].keys())
-
             self.selectedSubLevel = tk.StringVar()
             self.selectedSubLevel.set("Select Specific Level")  # default prompt
 
